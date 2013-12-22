@@ -52,3 +52,39 @@ func TestDecrypt(t *testing.T) {
 	})
 
 }
+
+func TestEncrypt(t *testing.T) {
+
+	tests := []struct {
+		input      []byte
+		passphrase string
+	}{
+		{[]byte("some-string-to-encrypt"), "some-passphrase"},
+	}
+
+	for _, test := range tests {
+
+		Convey("Given a plain text string to encrypt", t, func() {
+
+			encrypted, err := Encrypt(test.input, test.passphrase)
+
+			Convey("It correctly encrypts", func() {
+				So(err, ShouldBeNil)
+
+				decrypted, err := Decrypt(encrypted, test.passphrase)
+
+				Convey("The resulting encrypted data correctly decrypts", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("The resulting decrypted data matches the original input", func() {
+					So(string(decrypted[:]), ShouldEqual, string(test.input[:]))
+				})
+
+			})
+
+		})
+
+	}
+
+}
