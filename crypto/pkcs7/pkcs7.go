@@ -1,6 +1,7 @@
-package crypto
+package pkcs7
 
 // Returns a new byte array padded with PKCS7
+
 func PadPKCS7(src []byte, blockSize int) []byte {
 	missing := blockSize - (len(src) % blockSize)
 	newSize := len(src) + missing
@@ -17,7 +18,14 @@ func PadPKCS7(src []byte, blockSize int) []byte {
 	return dest
 }
 
-func UnpadPKCS7(src []byte) []byte {
-	padLen := src[len(src)-1]
-	return src[:len(src)-int(padLen)]
+func UnpadPKCS7(src []byte, blockSize int) (output []byte, err error) {
+	var paddingLength int
+	paddingLength = int(src[len(src)-1])
+
+	if paddingLength > blockSize {
+		err = &CorruptPaddingError{}
+		return
+	}
+	output = src[:len(src)-int(paddingLength)]
+	return
 }

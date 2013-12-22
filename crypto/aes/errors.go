@@ -1,4 +1,4 @@
-package errors
+package aes
 
 type InvalidPassphraseError struct {
 	Msg string
@@ -38,4 +38,26 @@ type InvalidAESKeyError struct {
 
 func (err *InvalidAESKeyError) Error() string {
 	return "Invalid AES key: " + err.Msg
+}
+
+type InvalidIVError struct {
+	Msg string
+}
+
+func (err *InvalidIVError) Error() string {
+	return "Invalid IV: " + err.Msg
+}
+
+type InvalidSaltError struct {
+	Msg string
+}
+
+func (err *InvalidSaltError) Error() string {
+	return "Invalid Salt: " + err.Msg
+}
+
+type IncorrectPassphraseError struct{}
+
+func (err *IncorrectPassphraseError) Error() string {
+	return "Invalid decryption passphrase"
 }

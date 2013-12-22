@@ -1,11 +1,21 @@
-package crypto
+package aes
 
 import (
 	"testing"
-
-	"github.com/Sonelli/gojuice/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+func BenchmarkEncrypt(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Encrypt([]byte("Hello"), "password123")
+	}
+}
+
+func BenchmarkDecrypt(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Decrypt("HIY6P+MIeWs=#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg==", "password123")
+	}
+}
 
 func TestDecrypt(t *testing.T) {
 
@@ -37,17 +47,38 @@ func TestDecrypt(t *testing.T) {
 		})
 	}
 
+	Convey("Given an incorrect passphrase", t, func() {
+		_, err := Decrypt("HIY6P+MIeWs=#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg==", "incorrect-passphrase")
+		Convey("An IncorrectPasswordError should be thrown", func() {
+			So(err, ShouldHaveSameTypeAs, &IncorrectPassphraseError{})
+		})
+	})
+
+	Convey("Given an invalid salt", t, func() {
+		_, err := Decrypt("invalid-salt#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg==", "password123")
+		Convey("An InvalidSaltError should be thrown", func() {
+			So(err, ShouldHaveSameTypeAs, &InvalidSaltError{})
+		})
+	})
+
+	Convey("Given an invalid IV", t, func() {
+		_, err := Decrypt("HIY6P+MIeWs=#invalid-iv#AmEmLlHNoMZpwTeL1b8vBg==", "password123")
+		Convey("An InvalidIVError should be thrown", func() {
+			So(err, ShouldHaveSameTypeAs, &InvalidIVError{})
+		})
+	})
+
 	Convey("Given an empty decryption passphrase", t, func() {
-		_, err := Decrypt("something-to-decrypt", "")
+		_, err := Decrypt("HIY6P+MIeWs=#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg==", "")
 		Convey("An InvalidPassphraseError should be thrown", func() {
-			So(err, ShouldHaveSameTypeAs, &errors.InvalidPassphraseError{})
+			So(err, ShouldHaveSameTypeAs, &InvalidPassphraseError{})
 		})
 	})
 
 	Convey("Given an invalid string to decrypt", t, func() {
 		_, err := Decrypt("some-invalid-encrypted-string", "some-passphrase")
 		Convey("An InvalidEncryptedDataError should be thrown", func() {
-			So(err, ShouldHaveSameTypeAs, &errors.InvalidEncryptedDataError{})
+			So(err, ShouldHaveSameTypeAs, &InvalidEncryptedDataError{})
 		})
 	})
 
