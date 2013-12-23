@@ -22,10 +22,28 @@ func UnpadPKCS7(src []byte, blockSize int) (output []byte, err error) {
 	var paddingLength int
 	paddingLength = int(src[len(src)-1])
 
+	if len(src)%blockSize != 0 {
+		err = &CorruptPaddingError{}
+		return
+	}
+
 	if paddingLength > blockSize {
 		err = &CorruptPaddingError{}
 		return
 	}
+
+	for _, v := range src[len(src)-paddingLength:] {
+		if int(v) != paddingLength {
+			err = &CorruptPaddingError{}
+			return
+		}
+	}
+
+	if paddingLength == 0 {
+		paddingLength = 1
+	}
+
 	output = src[:len(src)-int(paddingLength)]
 	return
+
 }

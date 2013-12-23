@@ -1,8 +1,8 @@
 package aes
 
 import (
-	"testing"
 	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 )
 
 func BenchmarkEncrypt(b *testing.B) {
@@ -19,33 +19,22 @@ func BenchmarkDecrypt(b *testing.B) {
 
 func TestDecrypt(t *testing.T) {
 
-	tests := []struct {
-		input      string
-		passphrase string
-		output     []byte
-	}{
-		{
-			"HIY6P+MIeWs=#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg==",
-			"password123",
-			[]byte("Hello"),
-		},
-	}
+	Convey("Given an encrypted input and a passphrase", t, func() {
 
-	for _, test := range tests {
+		input := "HIY6P+MIeWs=#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg=="
+		passphrase := "password123"
+		expected := []byte("Hello")
 
-		Convey("Given an encrypted input and a passphrase", t, func() {
+		result, err := Decrypt(input, passphrase)
+		if err != nil {
+			t.Error(err)
+		}
 
-			output, err := Decrypt(test.input, test.passphrase)
-			if err != nil {
-				t.Error(err)
-			}
-
-			Convey("The output should be properly decrypted", func() {
-				So(string(output[:]), ShouldEqual, string(test.output[:]))
-			})
-
+		Convey("The output should be properly decrypted", func() {
+			So(string(result[:]), ShouldEqual, string(expected[:]))
 		})
-	}
+
+	})
 
 	Convey("Given an incorrect passphrase", t, func() {
 		_, err := Decrypt("HIY6P+MIeWs=#GAYJei56awocGBLvmUhSGA==#AmEmLlHNoMZpwTeL1b8vBg==", "incorrect-passphrase")
@@ -86,36 +75,52 @@ func TestDecrypt(t *testing.T) {
 
 func TestEncrypt(t *testing.T) {
 
-	tests := []struct {
-		input      []byte
-		passphrase string
-	}{
-		{[]byte("some-string-to-encrypt"), "some-passphrase"},
-	}
+	Convey("Given an ASCII string to encrypt", t, func() {
 
-	for _, test := range tests {
+		input := []byte("some-string-to-encrypt")
+		passphrase := "some-passphrase"
 
-		Convey("Given a plain text string to encrypt", t, func() {
+		encrypted, err := Encrypt(input, passphrase)
 
-			encrypted, err := Encrypt(test.input, test.passphrase)
+		Convey("It correctly encrypts", func() {
+			So(err, ShouldBeNil)
 
-			Convey("It correctly encrypts", func() {
+			decrypted, err := Decrypt(encrypted, passphrase)
+
+			Convey("The resulting encrypted data correctly decrypts", func() {
 				So(err, ShouldBeNil)
+			})
 
-				decrypted, err := Decrypt(encrypted, test.passphrase)
-
-				Convey("The resulting encrypted data correctly decrypts", func() {
-					So(err, ShouldBeNil)
-				})
-
-				Convey("The resulting decrypted data matches the original input", func() {
-					So(string(decrypted[:]), ShouldEqual, string(test.input[:]))
-				})
-
+			Convey("The resulting decrypted data matches the original input", func() {
+				So(string(decrypted[:]), ShouldEqual, string(input[:]))
 			})
 
 		})
 
-	}
+	})
+
+	Convey("Given a UTF-8 string to encrypt", t, func() {
+
+		input := []byte("簥翷臒 礛簼繰 蚙迻 跿 蒛 溛滁溒")
+		passphrase := "鶐 貆賌 莦莚虙"
+
+		encrypted, err := Encrypt(input, passphrase)
+
+		Convey("It correctly encrypts", func() {
+			So(err, ShouldBeNil)
+
+			decrypted, err := Decrypt(encrypted, passphrase)
+
+			Convey("The resulting encrypted data correctly decrypts", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("The resulting decrypted data matches the original input", func() {
+				So(string(decrypted[:]), ShouldEqual, string(input[:]))
+			})
+
+		})
+
+	})
 
 }
