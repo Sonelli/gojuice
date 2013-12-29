@@ -20,6 +20,8 @@ const ITERATION_COUNT = 1000
 const SALT_LENGTH = 8
 const KEY_LENGTH = 32 // 32bytes = 256bits = AES256
 
+// Encrypt some data using AES-256 with PKCS#7 Padding using an AES key
+// derived via PBKDF2 with HMAC-SHA1
 func Encrypt(input []byte, passphrase string) (output string, encryptError error) {
 
 	if len(passphrase) < 1 {
@@ -57,6 +59,8 @@ func Encrypt(input []byte, passphrase string) (output string, encryptError error
 
 }
 
+// Decrypt some data using AES-256 with PKCS#7 Padding using an AES key
+// derived via PBKDF2 with HMAC-SHA1
 func Decrypt(input, passphrase string) (output []byte, decryptError error) {
 
 	if len(passphrase) < 1 {
