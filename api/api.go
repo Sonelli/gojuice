@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Sonelli/gojuice/auth"
+	"../auth"
 )
 
 // Connect to the JuiceSSH CloudSync API and retrieve the latest CloudSync
