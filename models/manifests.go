@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"../crypto/aes"
+	"github.com/Sonelli/gojuice/crypto/aes"
 )
 
 type EncryptedCloudSyncManifest struct {

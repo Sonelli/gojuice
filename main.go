@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"./api"
-	"./auth"
-	"./models"
+	"github.com/Sonelli/gojuice/api"
+	"github.com/Sonelli/gojuice/auth"
+	"github.com/Sonelli/gojuice/models"
 )
 
 func main() {
